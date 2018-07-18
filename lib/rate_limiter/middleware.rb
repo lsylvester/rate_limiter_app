@@ -13,6 +13,9 @@ module RateLimiter
 
       response = ActionDispatch::Response.new(*@app.call(env))
 
+      response.headers["X-RateLimit-Limit"] = @options[:limit].to_s
+      response.headers["X-RateLimit-Remaining"] = (@options[:limit] - count).to_s
+
       response.to_a
     end
   end

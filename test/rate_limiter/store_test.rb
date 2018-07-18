@@ -25,4 +25,5 @@ class RateLimiter::StoreTest < ActiveSupport::TestCase
   ensure
     RateLimiter::Store.new(namespace: "test").with_connection{ |c| c.flushdb }
   end
+
 end
