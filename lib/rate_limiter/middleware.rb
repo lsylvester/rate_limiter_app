@@ -6,6 +6,8 @@ module RateLimiter
       @store = Store.new
     end
 
+    attr_reader :store
+
     def call(env)
       request = ActionDispatch::Request.new(env)
 

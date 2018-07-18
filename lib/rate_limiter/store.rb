@@ -18,15 +18,19 @@ module RateLimiter
       end
     end
 
+    def clear
+      with_connection do |conn|
+        keys = conn.keys("*")
+        conn.del(*keys) unless keys.empty?
+      end
+    end
+
     protected
 
     def build_client(namespace: nil, **options)
+      namespace = namespace ? "#{namespace}:rate_limiter" : "rate_limiter"
       client = Redis.new(options)
-      if namespace
-        Redis::Namespace.new(namespace, :redis => client)
-      else
-        client
-      end
+      Redis::Namespace.new(namespace, :redis => client)
     end
 
   end

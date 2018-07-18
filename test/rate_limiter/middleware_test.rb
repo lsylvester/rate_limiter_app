@@ -17,7 +17,7 @@ class RateLimiter::MiddlewareTest < ActiveSupport::TestCase
 
     assert_equal "8", headers["X-RateLimit-Remaining"]
   ensure
-    Redis.new.flushdb
+    @middleware.store.clear
   end
 
 end
