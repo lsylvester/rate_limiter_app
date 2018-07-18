@@ -3,6 +3,14 @@ require 'rate_limiter/store'
 
 class RateLimiter::StoreTest < ActiveSupport::TestCase
 
+  setup do
+    @store = RateLimiter::Store.new(namespace: "test")
+  end
+
+  teardown do
+    @store.clear
+  end
+
   test "connection with namespace" do
     RateLimiter::Store.new(namespace: "foobar").with_connection do |conn|
       assert_equal "foobar:rate_limiter", conn.namespace
@@ -11,14 +19,11 @@ class RateLimiter::StoreTest < ActiveSupport::TestCase
   end
 
   test "incr" do
-    store = RateLimiter::Store.new(namespace: "test")
-    result = store.incr('key')
+    result = @store.incr('key')
     assert_equal 1, result
 
-    result = store.incr('key')
+    result = @store.incr('key')
     assert_equal 2, result
-  ensure
-    store.clear
   end
 
 end
