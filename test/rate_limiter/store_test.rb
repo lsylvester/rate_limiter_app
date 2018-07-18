@@ -16,4 +16,13 @@ class RateLimiter::StoreTest < ActiveSupport::TestCase
     end
   end
 
+  test "incr" do
+    result = RateLimiter::Store.new(namespace: "test").incr('key')
+    assert_equal 1, result
+
+    result = RateLimiter::Store.new(namespace: "test").incr('key')
+    assert_equal 2, result
+  ensure
+    RateLimiter::Store.new(namespace: "test").with_connection{ |c| c.flushdb }
+  end
 end
