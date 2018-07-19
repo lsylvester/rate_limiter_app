@@ -1,5 +1,4 @@
 require 'test_helper'
-require 'rate_limiter/middleware'
 
 class RateLimiter::MiddlewareTest < ActiveSupport::TestCase
 

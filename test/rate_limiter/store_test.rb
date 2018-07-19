@@ -1,5 +1,4 @@
 require 'test_helper'
-require 'rate_limiter/store'
 
 class RateLimiter::StoreTest < ActiveSupport::TestCase
 
