@@ -26,4 +26,16 @@ class RateLimiter::StoreTest < ActiveSupport::TestCase
     assert_equal 2, result
   end
 
+  test "incr with expiry should set the expiry if the key is new" do
+    @store.incr('key', expires_in: 4)
+    @store.with_connection do |redis|
+      assert_equal 4, redis.ttl("key")
+    end
+
+    @store.incr('key', expires_in: 10)
+    @store.with_connection do |redis|
+      assert_equal 4, redis.ttl("key")
+    end
+  end
+
 end
