@@ -24,6 +24,7 @@ module RateLimiter
       end
       response.headers["X-RateLimit-Limit"] = @options[:limit].to_s
       response.headers["X-RateLimit-Remaining"] = (@options[:limit] - counter.value).to_s
+      response.headers["X-RateLimit-Reset"] = counter.expires_at.to_i.to_s
 
       response.to_a
     end

@@ -15,6 +15,7 @@ class RateLimiter::MiddlewareTest < ActiveSupport::TestCase
     _, headers, _ = @middleware.call({})
     assert_equal "10", headers["X-RateLimit-Limit"]
     assert_equal "9", headers["X-RateLimit-Remaining"]
+    assert_equal (Time.now + 60).to_i.to_s, headers["X-RateLimit-Reset"]
 
     _, headers, _ = @middleware.call({})
 
