@@ -6,13 +6,20 @@ module RateLimiter
 
     attr_reader :value, :store
 
-    def incr(expires_in:)
-      @value = @store.incr(@key, expires_in: expires_in)
+    def incr
+      @value = @store.incr(@key)
     end
 
     def expires_in
       @store.with_connection do |redis|
-        redis.ttl(@key)
+        ttl = redis.ttl(@key)
+        ttl if ttl > 0
+      end
+    end
+
+    def expires_in=(value)
+      @store.with_connection do |redis|
+        redis.expire(@key, value.to_i)
       end
     end
 

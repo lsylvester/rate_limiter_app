@@ -14,7 +14,8 @@ module RateLimiter
       request = ActionDispatch::Request.new(env)
 
       counter = Counter.new(@store, request.remote_ip)
-      counter.incr(expires_in: @options[:period])
+      counter.incr
+      counter.expires_in ||= @options[:period]
 
       if counter.exceeds?(@options[:limit])
         response = ActionDispatch::Response.new(427, {}, "Rate Limit Exceeded. Please retry in #{counter.expires_in} seconds.")
