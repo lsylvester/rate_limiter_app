@@ -15,5 +15,9 @@ module RateLimiter
         redis.ttl(@key)
       end
     end
+
+    def exceeds?(limit)
+      @value > limit
+    end
   end
 end
