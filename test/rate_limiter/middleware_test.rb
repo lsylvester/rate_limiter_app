@@ -4,7 +4,7 @@ class RateLimiter::MiddlewareTest < ActiveSupport::TestCase
 
   setup do
     @app = -> env { [200, {}, [""]] }
-    @middleware =  RateLimiter::Middleware.new(@app, limit: 10)
+    @middleware =  RateLimiter::Middleware.new(@app, limit: 10, period: 1.minute)
   end
 
   test "it should add headers for limit and remaining counts" do
