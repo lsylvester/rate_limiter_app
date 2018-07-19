@@ -4,7 +4,7 @@ module RateLimiter
       @store, @key = store, key
     end
 
-    attr_reader :value
+    attr_reader :value, :store
 
     def incr(expires_in:)
       @value = @store.incr(@key, expires_in: expires_in)
