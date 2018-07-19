@@ -21,7 +21,7 @@ class RateLimiter::CounterTest < ActiveSupport::TestCase
   test "should set and read the expires_in" do
     @counter.incr
     @counter.expires_in = 10
-    assert_equal 10, @counter.expires_in
+    assert_equal 10, @counter.expires_in.round
   end
 
 

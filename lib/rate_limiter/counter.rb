@@ -12,8 +12,8 @@ module RateLimiter
 
     def expires_in
       @store.with_connection do |redis|
-        ttl = redis.ttl(@key)
-        ttl if ttl > 0
+        ttl = redis.pttl(@key)
+        ttl.to_f / 1000 if ttl > 0
       end
     end
 
@@ -24,7 +24,7 @@ module RateLimiter
     end
 
     def expires_at
-      expires_in.try{ |duration| Time.now + duration }
+      expires_in.try{ |seconds| Time.now + seconds }
     end
 
     def exceeds?(limit)
