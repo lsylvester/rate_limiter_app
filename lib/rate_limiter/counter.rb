@@ -23,6 +23,10 @@ module RateLimiter
       end
     end
 
+    def expires_at
+      expires_in.try{ |duration| Time.now + duration }
+    end
+
     def exceeds?(limit)
       @value > limit
     end
