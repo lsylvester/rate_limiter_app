@@ -19,7 +19,7 @@ module RateLimiter
       counter.expires_in ||= @period
 
       if counter.exceeds?(@limit)
-        response = ActionDispatch::Response.new(427, {}, "Rate Limit Exceeded. Please retry in #{counter.expires_in} seconds.")
+        response = ActionDispatch::Response.new(429, {}, "Rate Limit Exceeded. Please retry in #{counter.expires_in} seconds.")
       else
         response = ActionDispatch::Response.new(*@app.call(env))
       end

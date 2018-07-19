@@ -29,7 +29,7 @@ class RateLimiter::MiddlewareTest < ActiveSupport::TestCase
 
     status, headers, body = @middleware.call({"REMOTE_ADDR" => "127.0.0.1"})
 
-    assert_equal 427, status
+    assert_equal 429, status
     assert_equal "Rate Limit Exceeded. Please retry in 14 seconds.", body.body
 
   end
