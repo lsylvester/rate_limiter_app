@@ -19,10 +19,10 @@ class RateLimiter::StoreTest < ActiveSupport::TestCase
   end
 
   test "incr" do
-    result = @store.incr('key')
+    result = @store.incr('key', expires_in: 20)
     assert_equal 1, result
 
-    result = @store.incr('key')
+    result = @store.incr('key', expires_in: 20)
     assert_equal 2, result
   end
 

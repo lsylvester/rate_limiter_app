@@ -1,3 +1,5 @@
+require 'rate_limiter/store'
+
 module RateLimiter
   class Middleware
     def initialize(app, options)
@@ -11,7 +13,7 @@ module RateLimiter
     def call(env)
       request = ActionDispatch::Request.new(env)
 
-      count = @store.incr(request.remote_ip)
+      count = @store.incr(request.remote_ip, expires_in: @options[:period])
 
       response = ActionDispatch::Response.new(*@app.call(env))
 

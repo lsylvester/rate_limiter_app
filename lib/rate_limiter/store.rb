@@ -12,14 +12,12 @@ module RateLimiter
       @connection_pool.with{ |conn| yield conn }
     end
 
-    def incr(key, expires_in: nil)
+    def incr(key, expires_in:)
       with_connection do |conn|
         conn.incr(key).tap do
-          if expires_in
-            ttl = conn.ttl(key)
-            if ttl < 0
-              conn.expire key, expires_in
-            end
+          ttl = conn.ttl(key)
+          if ttl < 0
+            conn.expire key, expires_in.to_i
           end
         end
       end
