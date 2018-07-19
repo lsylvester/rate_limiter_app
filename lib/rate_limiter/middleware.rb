@@ -15,8 +15,15 @@ module RateLimiter
 
       count = @store.incr(request.remote_ip, expires_in: @options[:period])
 
-      response = ActionDispatch::Response.new(*@app.call(env))
+      ttl = @store.with_connection do |redis|
+        redis.ttl(request.remote_ip)
+      end
 
+      if count > @options[:limit]
+        response = ActionDispatch::Response.new(427, {}, "Rate Limit Exceeded. Please retry in #{ttl} seconds.")
+      else
+        response = ActionDispatch::Response.new(*@app.call(env))
+      end
       response.headers["X-RateLimit-Limit"] = @options[:limit].to_s
       response.headers["X-RateLimit-Remaining"] = (@options[:limit] - count).to_s
 
