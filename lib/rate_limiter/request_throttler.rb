@@ -8,7 +8,7 @@ module RateLimiter
 
     def perform
       ActiveSupport::Notifications.instrument 'throttle.rate_limiter', identifier: @request.remote_ip, limit: @limit do |payload|
-        @counter = Counter.new(Store.new, @request.remote_ip)
+        @counter = Counter.new(@request.remote_ip)
         @counter.incr
         @counter.expires_in ||= @period
 
