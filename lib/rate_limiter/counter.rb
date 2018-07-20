@@ -49,7 +49,7 @@ module RateLimiter
     class NoConnectionError < StandardError; end
 
     def connection
-      @connection || raise(NoConnectionError, "Wrap this call in a with_connection block to check out a connection from the redis pool")
+      @connection || raise(NoConnectionError, "There is no connection checkedout out from the pool. To checkout out a connection from the pool, wrap this call with the `with_connection` method.")
     end
 
     def store
