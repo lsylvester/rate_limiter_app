@@ -1,14 +1,14 @@
 module RateLimiter
   class RequestThrottler
-    def initialize(request, limit:, period:)
-      @request = request
+    def initialize(identifer, limit:, period:)
+      @indentifier = identifer
       @limit = limit
       @period = period
     end
 
     def perform
-      ActiveSupport::Notifications.instrument 'throttle.rate_limiter', identifier: @request.remote_ip, limit: @limit do |payload|
-        @counter = Counter.new(@request.remote_ip)
+      ActiveSupport::Notifications.instrument 'throttle.rate_limiter', identifier: @indentifier, limit: @limit do |payload|
+        @counter = Counter.new(@indentifier)
         @counter.incr_and_expire(@period)
 
         payload[:throttled] = throttled?

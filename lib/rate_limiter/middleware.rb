@@ -2,9 +2,10 @@ require 'rate_limiter/store'
 
 module RateLimiter
   class Middleware
-    def initialize(app, **options)
+    def initialize(app, identifier: :remote_ip.to_proc, **options)
       @app = app
       @options = options
+      @identifier = identifier
     end
 
     attr_reader :store
@@ -12,7 +13,7 @@ module RateLimiter
     def call(env)
       request = ActionDispatch::Request.new(env)
 
-      throttler = RequestThrottler.new(request, **@options)
+      throttler = RequestThrottler.new(@identifier.call(request), **@options)
       throttler.perform
 
       status, headers, body = if throttler.throttled?
