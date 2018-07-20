@@ -7,17 +7,21 @@ class RateLimiter::CounterTest < ActiveSupport::TestCase
   end
 
   test "incr would increase the value" do
-    @counter.incr
-    assert_equal 1, @counter.value
+    @counter.with_connection do
+      @counter.incr
+      assert_equal 1, @counter.value
 
-    @counter.incr
-    assert_equal 2, @counter.value
+      @counter.incr
+      assert_equal 2, @counter.value
+    end
   end
 
   test "should set and read the expires_in" do
-    @counter.incr
-    @counter.expires_in = 10
-    assert_equal 10, @counter.expires_in.round
+    @counter.with_connection do
+      @counter.incr
+      @counter.expire 10
+      assert_equal 10, @counter.expires_in.round
+    end
   end
 
 

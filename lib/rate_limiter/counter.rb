@@ -10,24 +10,28 @@ module RateLimiter
       @value = connection.incr(@key)
     end
 
-    def expires_in
-      connection.expires_in(@key)
-      # store.with_connection do |redis|
-      #   ttl = redis.pttl(@key)
-      #   ttl.to_f / 1000 if ttl > 0
-      # end
+    def incr_and_expire(expiry)
+      with_connection do
+        incr
+        expire(expiry) unless expires?
+      end
     end
 
-    def expires_in=(value)
+    def expires_in
+      @expires_at - Time.now
+    end
+
+    def expire(value)
       connection.expire(@key, value.to_i)
-      # store.with_connection do |redis|
-      #  redis.expire(@key, value.to_i)
-      # end
+      @expires_at = Time.now + value.to_i
     end
 
     def expires_at
-      expires_in.try{ |seconds| Time.now + seconds }
+      return @expires_at if defined?(@expires_at)
+      @expires_at = connection.expires_in(@key).try{ |duration| Time.now + duration}
     end
+
+    alias :expires? :expires_at
 
     def exceeds?(limit)
       @value > limit
@@ -42,8 +46,10 @@ module RateLimiter
       end
     end
 
+    class NoConnectionError < StandardError; end
+
     def connection
-      @connection || raise("No connection. Wrap this in a with_connection block")
+      @connection || raise(NoConnectionError, "Wrap this call in a with_connection block to check out a connection from the redis pool")
     end
 
     def store
