@@ -14,17 +14,8 @@ module RateLimiter
       @connection_pool.with{ |conn| yield conn }
     end
 
-    def incr(key)
-      with_connection do |conn|
-        conn.incr(key)
-      end
-    end
-
     def clear
-      with_connection do |conn|
-        keys = conn.keys("*")
-        conn.del(*keys) unless keys.empty?
-      end
+      with_connection(&:clear)
     end
 
     class ConnectionDelegate
@@ -37,7 +28,12 @@ module RateLimiter
         ttl.to_f / 1000 if ttl > 0
       end
 
-      delegate_missing_to :@redis
+      def clear
+        keys = @redis.keys("*")
+        @redis.del(*keys) unless keys.empty?
+      end
+
+      delegate :incr, :expire, :namespace, to: :@redis
     end
 
     protected
