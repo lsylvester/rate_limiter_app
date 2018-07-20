@@ -20,8 +20,10 @@ class RateLimiter::MiddlewareTest < ActiveSupport::TestCase
 
   test "it should throttle requests exceeding limit" do
     counter = RateLimiter::Counter.new("127.0.0.1")
-    10.times{ counter.incr }
-    counter.expires_in = 14
+    counter.with_connection do
+      10.times{ counter.incr }
+      counter.expire 14
+    end
 
     status, headers, body = @middleware.call({"REMOTE_ADDR" => "127.0.0.1"})
 

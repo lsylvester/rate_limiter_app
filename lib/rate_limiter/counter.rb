@@ -7,28 +7,49 @@ module RateLimiter
     attr_reader :value, :store
 
     def incr
-      @value = store.incr(@key)
+      @value = connection.incr(@key)
+    end
+
+    def incr_and_expire(expiry)
+      with_connection do
+        incr
+        expire(expiry) unless expires?
+      end
     end
 
     def expires_in
-      store.with_connection do |redis|
-        ttl = redis.pttl(@key)
-        ttl.to_f / 1000 if ttl > 0
-      end
+      expires_at - Time.now
     end
 
-    def expires_in=(value)
-      store.with_connection do |redis|
-        redis.expire(@key, value.to_i)
-      end
+    def expire(value)
+      connection.expire(@key, value.to_i)
+      @expires_at = Time.now + value.to_i
     end
 
     def expires_at
-      expires_in.try{ |seconds| Time.now + seconds }
+      return @expires_at if defined?(@expires_at)
+      @expires_at = connection.expires_in(@key).try{ |duration| Time.now + duration}
     end
+
+    alias :expires? :expires_at
 
     def exceeds?(limit)
       @value > limit
+    end
+
+    def with_connection
+      store.with_connection do |connection|
+        @connection = connection
+        yield
+      ensure
+        @connection = nil
+      end
+    end
+
+    class NoConnectionError < StandardError; end
+
+    def connection
+      @connection || raise(NoConnectionError, "There is no connection checkedout out from the pool. To checkout out a connection from the pool, wrap this call with the `with_connection` method.")
     end
 
     def store

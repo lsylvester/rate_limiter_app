@@ -2,29 +2,37 @@ module RateLimiter
   class Store
     include Singleton
 
-
     class_attribute :config, default: Rails.application.config_for(:redis).symbolize_keys
 
     def initialize(config=self.class.config)
       config[:size] ||= ENV.fetch("RAILS_MAX_THREADS") { 5 }.to_i
-      @connection_pool = ConnectionPool.new(size: config[:size]){ build_client(config) }
+      @connection_pool = ConnectionPool.new(size: config[:size]){ ConnectionDelegate.new(build_client(config)) }
     end
 
     def with_connection
       @connection_pool.with{ |conn| yield conn }
     end
 
-    def incr(key)
-      with_connection do |conn|
-        conn.incr(key)
-      end
+    def clear
+      with_connection(&:clear)
     end
 
-    def clear
-      with_connection do |conn|
-        keys = conn.keys("*")
-        conn.del(*keys) unless keys.empty?
+    class ConnectionDelegate
+      def initialize(redis)
+        @redis = redis
       end
+
+      def expires_in(key)
+        ttl = @redis.pttl(key)
+        ttl.to_f / 1000 if ttl > 0
+      end
+
+      def clear
+        keys = @redis.keys("*")
+        @redis.del(*keys) unless keys.empty?
+      end
+
+      delegate :incr, :expire, :namespace, to: :@redis
     end
 
     protected
