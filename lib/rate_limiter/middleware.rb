@@ -2,10 +2,9 @@ require 'rate_limiter/store'
 
 module RateLimiter
   class Middleware
-    def initialize(app, limit:, period:)
+    def initialize(app, **options)
       @app = app
-      @limit = limit
-      @period = period
+      @options = options
     end
 
     attr_reader :store
@@ -13,27 +12,26 @@ module RateLimiter
     def call(env)
       request = ActionDispatch::Request.new(env)
 
-      counter = Counter.new(request.remote_ip)
-      counter.incr
-      counter.expires_in ||= @period
+      throttler = RequestThrottler.new(request, **@options)
+      throttler.perform
 
-      if counter.exceeds?(@limit)
-        response = ActionDispatch::Response.new(429, {}, "Rate Limit Exceeded. Please retry in #{counter.expires_in.round} seconds.")
+      if throttler.throttled?
+        response = ActionDispatch::Response.new(429, {}, "Rate Limit Exceeded. Please retry in #{throttler.expires_in.round} seconds.")
       else
         response = ActionDispatch::Response.new(*@app.call(env))
       end
-      response.headers.merge!(rate_limit_response_headers(counter))
 
+      response.headers.merge!(rate_limit_response_headers(throttler))
       response.to_a
     end
 
     protected
 
-    def rate_limit_response_headers(counter)
+    def rate_limit_response_headers(throttler)
       {
-        "X-RateLimit-Limit"     => @limit.to_s,
-        "X-RateLimit-Remaining" => (@limit - counter.value).to_s,
-        "X-RateLimit-Reset"     => counter.expires_at.to_i.to_s
+        "X-RateLimit-Limit"     => throttler.limit.to_s,
+        "X-RateLimit-Remaining" => throttler.remaining.to_s,
+        "X-RateLimit-Reset"     => throttler.reset.to_s
       }
     end
   end
