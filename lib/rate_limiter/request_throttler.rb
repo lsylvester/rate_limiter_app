@@ -31,5 +31,18 @@ module RateLimiter
     def reset
       @counter.expires_at.to_i
     end
+
+    def throttled_response
+      return unless throttled?
+      ActionDispatch::Response.new(429, {}, "Rate Limit Exceeded. Please retry in #{expires_in.round} seconds.")
+    end
+
+    def response_headers
+      {
+        "X-RateLimit-Limit"     => limit.to_s,
+        "X-RateLimit-Remaining" => remaining.to_s,
+        "X-RateLimit-Reset"     => reset.to_s
+      }
+    end
   end
 end
