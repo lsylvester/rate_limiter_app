@@ -1,10 +1,13 @@
 module RateLimiter
   class Counter
+
+    class_attribute :store, default: Store.new
+
     def initialize(key)
       @key = key
     end
 
-    attr_reader :value, :store
+    attr_reader :value
 
     def incr
       @value = connection.incr(@key)
@@ -50,10 +53,6 @@ module RateLimiter
 
     def connection
       @connection || raise(NoConnectionError, "There is no connection checkedout out from the pool. To checkout out a connection from the pool, wrap this call with the `with_connection` method.")
-    end
-
-    def store
-      Store.instance
     end
   end
 end
