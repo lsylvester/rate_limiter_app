@@ -18,7 +18,7 @@ module RateLimiter
     end
 
     def expires_in
-      @expires_at - Time.now
+      expires_at - Time.now
     end
 
     def expire(value)
