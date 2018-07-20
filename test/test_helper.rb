@@ -8,6 +8,6 @@ require 'rails/test_help'
 class ActiveSupport::TestCase
   # Add more helper methods to be used by all tests here...
   teardown do
-    RateLimiter::Store.instance.clear
+    RateLimiter::Counter.store.clear
   end
 end

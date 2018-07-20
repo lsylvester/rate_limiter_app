@@ -1,7 +1,5 @@
 module RateLimiter
   class Store
-    include Singleton
-
     class_attribute :config, default: Rails.application.config_for(:redis).symbolize_keys
 
     def initialize(config=self.class.config)
