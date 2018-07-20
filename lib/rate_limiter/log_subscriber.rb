@@ -2,14 +2,13 @@ module RateLimiter
   class LogSubscriber < ActiveSupport::LogSubscriber
     def throttle(event)
       if event.payload[:throttled]
-        info "[RateLimiter] Throttled request for #{event.payload[:identifier]} (#{event.payload[:count]}/#{event.payload[:limit]}). Expires at #{event.payload[:expires]}"
+        action = "Throttled"
+        severity = :info
       else
-        debug "[RateLimiter] Allowed request for #{event.payload[:identifier]} (#{event.payload[:count]}/#{event.payload[:limit]}). Expires at #{event.payload[:expires]}"
+        action = "Allowed"
+        severity = :debug
       end
-    end
-
-    def logger
-      Rails.logger
+      send severity, "[RateLimiter] #{action} request for #{event.payload[:identifier]} (#{event.payload[:count]}/#{event.payload[:limit]}). Expires at #{event.payload[:expires]}"
     end
   end
 end
