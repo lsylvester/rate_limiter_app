@@ -6,7 +6,6 @@ module RateLimiter
       @app = app
       @limit = limit
       @period = period
-      @store = Store.new
     end
 
     attr_reader :store
@@ -14,7 +13,7 @@ module RateLimiter
     def call(env)
       request = ActionDispatch::Request.new(env)
 
-      counter = Counter.new(@store, request.remote_ip)
+      counter = Counter.new(request.remote_ip)
       counter.incr
       counter.expires_in ||= @period
 

@@ -1,24 +1,24 @@
 module RateLimiter
   class Counter
-    def initialize(store, key)
-      @store, @key = store, key
+    def initialize(key)
+      @key = key
     end
 
     attr_reader :value, :store
 
     def incr
-      @value = @store.incr(@key)
+      @value = store.incr(@key)
     end
 
     def expires_in
-      @store.with_connection do |redis|
+      store.with_connection do |redis|
         ttl = redis.pttl(@key)
         ttl.to_f / 1000 if ttl > 0
       end
     end
 
     def expires_in=(value)
-      @store.with_connection do |redis|
+      store.with_connection do |redis|
         redis.expire(@key, value.to_i)
       end
     end
@@ -29,6 +29,10 @@ module RateLimiter
 
     def exceeds?(limit)
       @value > limit
+    end
+
+    def store
+      Store.instance
     end
   end
 end
