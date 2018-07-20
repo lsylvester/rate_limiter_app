@@ -3,11 +3,7 @@ require 'test_helper'
 class RateLimiter::CounterTest < ActiveSupport::TestCase
 
   setup do
-    @counter = RateLimiter::Counter.new(RateLimiter::Store.new, "count_key")
-  end
-
-  teardown do
-    @counter.store.clear
+    @counter = RateLimiter::Counter.new( "count_key")
   end
 
   test "incr would increase the value" do

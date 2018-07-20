@@ -7,10 +7,6 @@ class RateLimiter::MiddlewareTest < ActiveSupport::TestCase
     @middleware =  RateLimiter::Middleware.new(@app, limit: 10, period: 1.minute)
   end
 
-  teardown do
-    @middleware.store.clear
-  end
-
   test "it should add headers for limit and remaining counts" do
     _, headers, _ = @middleware.call({})
     assert_equal "10", headers["X-RateLimit-Limit"]
@@ -23,7 +19,7 @@ class RateLimiter::MiddlewareTest < ActiveSupport::TestCase
   end
 
   test "it should throttle requests exceeding limit" do
-    counter = RateLimiter::Counter.new(@middleware.store, "127.0.0.1")
+    counter = RateLimiter::Counter.new("127.0.0.1")
     10.times{ counter.incr }
     counter.expires_in = 14
 
