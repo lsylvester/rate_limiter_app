@@ -15,14 +15,15 @@ module RateLimiter
       throttler = RequestThrottler.new(request, **@options)
       throttler.perform
 
-      if throttler.throttled?
-        response = ActionDispatch::Response.new(429, {}, "Rate Limit Exceeded. Please retry in #{throttler.expires_in.round} seconds.")
+      status, headers, body = if throttler.throttled?
+        ActionDispatch::Response.new(429, {}, "Rate Limit Exceeded. Please retry in #{throttler.expires_in.round} seconds.").to_a
       else
-        response = ActionDispatch::Response.new(*@app.call(env))
+        @app.call(env)
       end
 
-      response.headers.merge!(rate_limit_response_headers(throttler))
-      response.to_a
+      headers.merge!(rate_limit_response_headers(throttler))
+
+      [status, headers, body ]
     end
 
     protected
