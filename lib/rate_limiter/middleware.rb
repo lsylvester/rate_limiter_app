@@ -23,7 +23,7 @@ module RateLimiter
 
       headers.merge!(rate_limit_response_headers(throttler))
 
-      [status, headers, body ]
+      [status, headers, body]
     end
 
     protected
