@@ -7,20 +7,22 @@ module RateLimiter
     attr_reader :value, :store
 
     def incr
-      @value = store.incr(@key)
+      @value = connection.incr(@key)
     end
 
     def expires_in
-      store.with_connection do |redis|
-        ttl = redis.pttl(@key)
-        ttl.to_f / 1000 if ttl > 0
-      end
+      connection.expires_in(@key)
+      # store.with_connection do |redis|
+      #   ttl = redis.pttl(@key)
+      #   ttl.to_f / 1000 if ttl > 0
+      # end
     end
 
     def expires_in=(value)
-      store.with_connection do |redis|
-        redis.expire(@key, value.to_i)
-      end
+      connection.expire(@key, value.to_i)
+      # store.with_connection do |redis|
+      #  redis.expire(@key, value.to_i)
+      # end
     end
 
     def expires_at
@@ -29,6 +31,19 @@ module RateLimiter
 
     def exceeds?(limit)
       @value > limit
+    end
+
+    def with_connection
+      store.with_connection do |connection|
+        @connection = connection
+        yield
+      ensure
+        @connection = nil
+      end
+    end
+
+    def connection
+      @connection || raise("No connection. Wrap this in a with_connection block")
     end
 
     def store
