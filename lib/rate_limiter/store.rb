@@ -1,10 +1,7 @@
 module RateLimiter
   class Store
-    class_attribute :config, default: Rails.application.config_for(:redis).symbolize_keys
-
-    def initialize(config=self.class.config)
-      config[:size] ||= ENV.fetch("RAILS_MAX_THREADS") { 5 }.to_i
-      @connection_pool = ConnectionPool.new(size: config[:size]){ ConnectionDelegate.new(build_client(config)) }
+    def initialize(config=Rails.application.config_for(:redis))
+      @connection_pool = ConnectionPool.new(config.delete(:pool)){ ConnectionDelegate.new(build_client(config)) }
     end
 
     def with_connection

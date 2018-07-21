@@ -1,2 +1,14 @@
+development:
+  :namespace: development
+  :pool:
+    :size: 10
+
 test:
-  namespace: test
+  :namespace: test
+  :pool:
+    :size: 10
+
+production:
+  :namespace: production
+  :pool:
+    :size: 10
