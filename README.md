@@ -1,4 +1,6 @@
-# README
+# Rate Limiter App
+
+[![Build Status](https://travis-ci.com/lsylvester/rate_limiter_app.svg?branch=master)](https://travis-ci.com/lsylvester/rate_limiter_app) [![Maintainability](https://api.codeclimate.com/v1/badges/5a63952bce55a8b3b1a5/maintainability)](https://codeclimate.com/github/lsylvester/rate_limiter_app/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/5a63952bce55a8b3b1a5/test_coverage)](https://codeclimate.com/github/lsylvester/rate_limiter_app/test_coverage)
 
 This is a demo application that implements a rate limiter.
 
