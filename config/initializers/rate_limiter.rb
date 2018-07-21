@@ -1,1 +1,1 @@
-require_dependency 'rate_limiter'
+require_or_load 'rate_limiter'

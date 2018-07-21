@@ -2,6 +2,8 @@
 
 This is a demo application that implements a rate limiter.
 
+A live demo of this app can be seen at https://rate-limiter-app-demo.herokuapp.com
+
 ## Getting started
 
 This application as two system dependencies.
